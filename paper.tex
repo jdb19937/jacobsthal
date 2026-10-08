@@ -1,0 +1,279 @@
+\documentclass[11pt]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{upquote}
+\lstdefinelanguage{Lean}{morekeywords={theorem,def,open},sensitive=true,morecomment=[l]{--}}
+\lstset{language=Lean, basicstyle=\footnotesize\fontfamily{lmtt}\selectfont\upshape, keywordstyle=\bfseries,
+  columns=fullflexible, keepspaces=true, breaklines=true,
+  literate={α}{{$\alpha$}}1 {ℚ}{{$\mathbb{Q}$}}1 {ℝ}{{$\mathbb{R}$}}1 {ℤ}{{$\mathbb{Z}$}}1 {ℕ}{{$\mathbb{N}$}}1 {→}{{$\rightarrow$}}1 {≠}{{$\ne$}}1 {∀}{{$\forall$}}1 {∃}{{$\exists$}}1 {∧}{{$\wedge$}}1 {≤}{{$\le$}}1 {¬}{{$\lnot$}}1 {^}{{\textasciicircum}}1}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\newcommand{\doi}[1]{\href{https://doi.org/#1}{doi:#1}}
+\newcommand{\repourl}{https://github.com/jdb19937/jacobsthal-log-saving}
+
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposition}[lemma]{Proposition}
+\newtheorem{remark}[lemma]{Remark}
+\newtheorem{hypothesis}[lemma]{Hypothesis}
+\newtheorem*{theoremA}{Theorem A}
+\newtheorem*{theoremB}{Theorem B}
+
+\newcommand{\Mg}{M_g}
+\newcommand{\astar}{a_\star}
+\newcommand{\fext}{f_{\mathrm{ext}}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+
+\begin{document}
+
+\title[Jacobsthal's function beyond the square]{Jacobsthal's function beyond the square:\\ a logarithmic saving and a Brun--Titchmarsh reduction}
+
+\author{Dan Brown$^*$}
+\email{jdb1729@gmail.com}
+\thanks{$^*$Author of \emph{The Da Vinci Code}.}
+
+\date{October 7, 2026}
+
+\begin{abstract}
+Let $h(k)$ be the least $m$ such that every $m$ consecutive integers contain an integer coprime to any given $n$ with at most $k$ distinct prime factors. The recent bound $h(k)\ll k^2/(\log\log k)^2$ rests on a reference calculation whose root sits at the critical parameter $2$ of the linear sieve and whose positivity is salvaged by a second-order boundary term. We show that the boundary term tolerates a cutoff above $\sqrt{Y}$ by a power of $\log Y$ and obtain
+\[
+h(k)\ \ll\ \frac{k^2}{(\log k)^{2/25}(\log\log k)^2}.
+\]
+We also show that no cutoff $Y^{1/2+\delta}$ can be reached by that calculation, and we reduce every bound $h(k)\ll k^{2-\delta}$ to a Brun--Titchmarsh inequality with constant below $2$ for sifted translated intervals at moduli between $Y^{1/3}$ and $Y^{1/2+\delta}$, averaged over the modulus. That inequality is exactly the parity-saturation statement which Siegel zeros would violate and which, by the uniform exclusion of Siegel zeros, now has no known obstruction.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+For a positive integer $n$ let $j(n)$ be the least $m$ such that every $m$ consecutive integers contain an integer coprime to $n$, and put
+\[
+h(k)=\max\{j(n):\omega(n)\le k\},
+\]
+where $\omega(n)$ is the number of distinct prime divisors. Equivalently, $h(k)-1$ is the longest interval that can be covered by one residue class from each of $k$ primes. Jacobsthal \cite{Jac} asked whether $h(k)\ll k^2$. Brun's method gives $h(k)\ll k^{C}$ (Erd\H{o}s \cite{Erd}); Vaughan \cite{Vau} obtained $j(n)\ll\omega(n)^2\log^4(2\omega(n))$ and explained the exponent $2$ by the restriction of the one-dimensional sieve to moduli near the square root of the interval length; Iwaniec \cite{Iw} reached $h(k)\ll k^2\log^2k$; and the paper \cite{OAI}, cited below by its equation and result numbers, proved
+\begin{equation}\label{oai}
+h(k)\ \ll\ \frac{k^2}{(\log\log 3k)^2}
+\end{equation}
+by evaluating the sieve exactly at the critical parameter and keeping a boundary term that the leading linear-sieve term discards. In the other direction, the long-gap construction of Ford, Green, Konyagin, Maynard and Tao \cite{FGKMT} gives $j(P_k)\gg k(\log k)^2\log\log\log k/\log\log k$ for the primorial $P_k$, and Vaughan suggested $j(n)\ll_\eps\omega(n)^{1+\eps}$.
+
+\begin{theoremA}
+For every fixed $\theta<\theta_0:=0.0826$ there is $C=C(\theta)$ such that
+\[
+h(k)\le C\,\frac{k^2}{(\log 3k)^{\theta}(\log\log 3k)^2}\qquad(k\ge1).
+\]
+In particular $h(k)\ll k^2(\log 3k)^{-2/25}(\log\log 3k)^{-2}$.
+\end{theoremA}
+
+The constant $\theta_0=2I_0/M_0-\astar$ is computed from two quantities of \cite{OAI}, the signed correction integral $I$ of (6.12) and the mean log-decrement $\Mg$ of the tilted path chain, through the bounds $I>I_0:=0.3326$ and $\Mg<M_0:=7.1804$ certified in Lean in Section~\ref{sec:formal} (the paper \cite{OAI} records $I>0.2229793730$ in its Remark~6.4 and $\Mg\le4e^\gamma$ in its (4.22)). Section~\ref{sec:thmA} shows that the cutoff exponent enters the proof of \cite{OAI} only through the root gap of its decreasing-prime tree, where it shifts a benchmark of size $e^{\gamma}B^{-2}$ linearly, while the boundary term of size $2Ie^\gamma/(\Mg B^2)$ is untouched. Raising the cutoff from $\sqrt Y\log Y$ to $\sqrt Y(\log Y)^A$ is therefore free as long as $2A-2+\astar<2I/\Mg$, and $\theta=2A-2$.
+
+\medskip
+The square cannot be passed by the same calculation. The reason is a balance of the Rosser--Iwaniec bounds at the parity scale, which we make explicit in Section~\ref{sec:budget}: sieving an interval of length $Y$ by the primes up to $Y^{1/3}$ leaves at least $(2\log2-o(1))Y/\log Y$ survivors, and the primes in $(Y^{1/3},Y^{1/2+\delta}]$ can remove at most $(2\log2+8\delta+o(1))Y/\log Y$ of them. At $\delta=0$ the two numbers agree. Any argument using only the sieve functions $f$ and $F$ must stop at $k^2$, and Proposition~\ref{nopower} shows that the reference calculation of \cite{OAI}, with its admission rule and base, cannot reach a cutoff $z^{2-4\delta}$ either.
+
+What is needed to go further is that the medium primes do not reach their sieve-theoretic maximum. We formulate this as a Brun--Titchmarsh inequality for the sifted set.
+
+\begin{hypothesis}[$\mathrm H(\eta,\delta)$]\label{H}
+Let $0<\eta<1$ and $0<\delta<1/16$. For all sufficiently large $Y$, every finite set $\mathcal Q$ of primes $q\le Y^{1/3}$ with residue classes $(a_q)_{q\in\mathcal Q}$, and every prime $p\in(Y^{1/3},Y^{1/2+\delta}]$ and class $a\bmod p$, writing $s_p=3(1-\log p/\log Y)$ and $G(\mathcal Q)=\prod_{q\in\mathcal Q}(1-1/q)$,
+\[
+\#\{n\le Y:\ n\equiv a\ (p),\ n\not\equiv a_q\ (q)\ \forall q\in\mathcal Q\}\ \le\ (1-\eta)\,\frac{2e^{\gamma}}{s_p}\,G(\mathcal Q)\,\frac{Y}{p},
+\]
+except for a set $\mathcal E$ of primes $p$ with $\sum_{p\in\mathcal E}1/p\le\eta\log2/20$.
+\end{hypothesis}
+
+By the Chinese remainder theorem the sifted set is $\{n\le Y:(n-b,\prod\mathcal Q)=1\}$ for one integer $b$. The right-hand side is the Rosser--Iwaniec upper bound $F(s_p)G(\mathcal Q)Y/p$, so $\mathrm H$ asks for a saving of $\eta$ in the Brun--Titchmarsh constant $2$ for rough numbers in a translated interval, in one class modulo a prime between the cube root and the square root of the interval length, on average over the prime.
+
+\begin{theoremB}
+Assume $\mathrm H(\eta,\delta)$ with $\delta<\eta\log2/16$. Then
+\[
+h(k)\ \ll_\eta\ (k\log k)^{2/(1+2\delta)}\ =\ k^{\,2-4\delta+O(\delta^2)}.
+\]
+\end{theoremB}
+
+Hypothesis $\mathrm H$ is not idle. Granville \cite{Gra} proved that if Siegel zeros exist then the Rosser--Iwaniec bounds are attained by intervals: under a Siegel zero $\chi\bmod q$ the primes $p\le q^{B}$ have $\chi(p)=-1$, products of $k$ large primes in a class $a\bmod q$ number $(1+(-1)^k\chi(a))$ times the average, and the interval $(b,b+y]$ with $b\equiv a/q\bmod P_q(z)$ has the same survivor count as the class. In particular $\mathrm H$ fails for the natural translate. Conversely, Motohashi \cite{Mot} and Granville \cite[Prop.~2]{Gra} show that a Brun--Titchmarsh constant below $2$ at moduli near $\sqrt x$ implies that there are no Siegel zeros. Siegel zeros are now excluded: every real zero $\beta$ of every primitive real Dirichlet $L$-function of conductor $q\ge3$ satisfies $(1-\beta)\log q\ge c$ for an absolute $c>0$ \cite{OAISiegel}, and that theorem is machine-verified in Lean~4 over Mathlib from the three standard axioms. So the one known mechanism producing parity-saturated intervals is gone, and $\mathrm H$ sits strictly between a verified theorem and an open one. Theorem~B says that whatever proves $\mathrm H$ proves Jacobsthal beyond the square.
+
+\subsection*{Notation}
+Logarithms are natural, $\gamma$ is Euler's constant, $e^{\gamma}=1.78107\ldots$, and we use $e^\gamma<1.782$. The Rosser--Iwaniec linear sieve functions are $F(s)=2e^{\gamma}/s$ for $0<s\le3$ and $f(s)=2e^{\gamma}\log(s-1)/s$ for $2\le s\le4$, $f(s)=0$ for $s\le2$. For a finite set of primes $\mathcal Q$ we write $G(\mathcal Q)=\prod_{q\in\mathcal Q}(1-1/q)$.
+
+\section{Components}
+
+\begin{lemma}[Linear sieve; Iwaniec, see {\cite[Thm.~11.12--11.13]{FI}}]\label{lin}
+Let $\mathcal A\subset\mathbb Z$ be finite, $\mathcal Q$ a finite set of primes with classes $(a_q)$, and for squarefree $d$ composed of primes of $\mathcal Q$ let $\mathcal A_d=\{n\in\mathcal A:n\equiv a_q\ (q)\ \forall q\mid d\}$, $|\mathcal A_d|=|\mathcal A|/d+r_d$. Let $z\ge2$, $D\ge z$, $s=\log D/\log z$, $\mathcal Q\subset[2,z]$, and suppose $|r_d|\le1$ for all such $d\le D$. Then with $S(\mathcal A,\mathcal Q)=\#\{n\in\mathcal A:n\not\equiv a_q\ (q)\ \forall q\in\mathcal Q\}$,
+\[
+\bigl(f(s)-\eps(D)\bigr)G(\mathcal Q)|\mathcal A|-D\ \le\ S(\mathcal A,\mathcal Q)\ \le\ \bigl(F(s)+\eps(D)\bigr)G(\mathcal Q)|\mathcal A|+D,
+\]
+where $\eps(D)\to0$ as $D\to\infty$ uniformly in $\mathcal Q$ and the classes.
+\end{lemma}
+
+The dimension hypothesis of the linear sieve, $\prod_{w\le q<z,\,q\in\mathcal Q}(1-1/q)^{-1}\le\frac{\log z}{\log w}(1+O(1/\log w))$, is an upper bound and holds for every subset $\mathcal Q$ of the primes. For an interval $\mathcal A=[1,Y]$, and for a progression $\{n\le Y:n\equiv a\ (p)\}$ with $p\notin\mathcal Q$, one has $|r_d|\le1$ for every $d$.
+
+\begin{lemma}[Mertens]\label{mertens}
+$\sum_{Y^{u}<p\le Y^{v}}1/p=\log(v/u)+O(1/\log Y)$ for fixed $0<u<v$, and $\prod_{q\le y}(1-1/q)=(e^{-\gamma}+o(1))/\log y$.
+\end{lemma}
+
+\subsection{The reference calculation of \cite{OAI}}\label{sec:ref}
+We recall the objects of \cite{OAI} that Theorem~A touches. For real $z\ge z_0$ and a fixed $A\ge1$ set
+\begin{equation}\label{param}
+L=\log z,\qquad Y_A=\Bigl\lfloor\frac{z^2}{L^{2A}}\Bigr\rfloor,\qquad w=\frac{L}{(\log L)^2},\qquad B=\frac{L}{\log w},\qquad V_0=\prod_{p\le w}\Bigl(1-\frac1p\Bigr).
+\end{equation}
+At $A=1$ this is (1.2) of \cite{OAI}, and $w,B,V_0$ do not involve $A$. The proof of \cite{OAI} partitions the integers removed from $[1,Y]$ by the least prime at which they meet a forbidden class, iterates, and obtains an expansion over tuples of strictly decreasing primes whose even depths give lower bounds and odd depths upper bounds. An admission rule (3.3) keeps only progressions long enough for the fundamental lemma; the root of the resulting tree has gap $r_0=\log_wY-\astar+2$ with $\astar=1/100$ (Section~3 there). Replacing small-prime counts by their mean values defines the reference tree, whose leading term is governed by $f$ and $F$ with root ratio $r_0/B\to2$, and whose boundary contribution at scale $B^{-2}$ is evaluated in Section~6 there: Proposition~6.3 of \cite{OAI} gives
+\begin{equation}\label{margin-oai}
+\frac{B^2P_e(r_0,B)}{e^{\gamma}}\longrightarrow-\astar+\frac{2I}{\Mg},
+\end{equation}
+where $I$ is the signed correction integral (6.12), with $I>0.2229793730$ by Remark~6.4 there (exact rational arithmetic on the first-omission series (6.15)--(6.18)) and $I>I_0=0.3326$ by the computation of Section~\ref{sec:formal}, and $\Mg$ is the mean log-decrement of the tilted path chain, $0<\Mg\le4e^{\gamma}<M_0=7.1804$ by Lemma~4.4 and (4.22) there and the bound on $e^\gamma$ of Section~\ref{sec:formal}. The sign in \eqref{margin-oai} is the positivity on which Theorem~1.2 of \cite{OAI} rests; the comparison with the actual classes (Sections~7--10 there) is an absolute-value bound at the same scale.
+
+\section{Proof of Theorem A}\label{sec:thmA}
+
+\begin{lemma}[Root gap]\label{root}
+With \eqref{param} and $r_0=\log_wY_A-\astar+2$,
+\[
+r_0=2B-\eps_A+o(1),\qquad\eps_A:=2A-2+\astar,\qquad\frac{r_0}{B}=2-\frac{\eps_A}{B}+o\Bigl(\frac1B\Bigr).
+\]
+\end{lemma}
+\begin{proof}
+$\log Y_A=2L-2A\log L+O(L^{2A}z^{-2})$ and $\log w=\log L-2\log\log L$, so $\log_wY_A=2B-2A\log L/\log w+o(1)=2B-2A+o(1)$.
+\end{proof}
+
+\begin{proposition}\label{margin}
+With \eqref{param} and the reference tree of \cite{OAI},
+\[
+\frac{B^2P_e(r_0,B)}{e^{\gamma}}\longrightarrow-\eps_A+\frac{2I}{\Mg}\qquad(z\to\infty).
+\]
+If $\eps_A<2I/\Mg$ there is $c_L(A)>0$ with $B^2P_e(r_0,B)\ge c_L(A)$ for all large $z$. This holds for every $A<A_0:=1-\astar/2+I_0/M_0$, and $A_0>1.0413$.
+\end{proposition}
+\begin{proof}
+By (6.10) of \cite{OAI}, $P_e(r_0,B)=V(B)\fext(r_0/B)+D_w+o(B^{-2})$, where the residual sum is bounded by Lemma~6.1 there, uniformly for starting ratios in $[1.99,2.3]$; by Lemma~\ref{root} the root ratio lies in that window for large $z$ and exceeds $1.98$, the lower end of the domain of $\fext$. By (6.11)--(6.12) there, $B^2D_w/e^{\gamma}\to2I/\Mg$: that derivation uses the compact occupation limit (5.11), uniform in the start, and the normalization $B^2\varphi_e(r_0/B)/r_0^2\to\varphi_e(2)/4=e^{\gamma}$, which holds because $r_0/B\to2$. For the benchmark, (6.1) gives $V(B)=(C_w/B)(1+O(E(B)))$ with $C_w\to1$, and with $r_0/B=2-\eta$, $\eta=\eps_A/B+o(1/B)$,
+\[
+\fext(2-\eta)=2e^{\gamma}\frac{\log(1-\eta)}{2-\eta}=-e^{\gamma}\eta(1+O(\eta)),
+\]
+so $B^2V(B)\fext(r_0/B)/e^{\gamma}\to-\eps_A$. Adding gives the limit. For the last claim, $I>I_0$ and $\Mg<M_0$ give $2I/\Mg>2I_0/M_0>0.0926$, and $\eps_A<2I_0/M_0$ is $A<A_0$.
+\end{proof}
+
+\begin{proposition}[Survivors at a higher cutoff]\label{surv}
+Let $1\le A<A_0$. There are $c_A>0$ and $z_A$ such that for every real $z\ge z_A$ and every choice of a residue class $a_p\bmod p$ for each prime $p\le z$,
+\[
+\#\{1\le n\le Y_A:\ n\not\equiv a_p\ (p)\ \forall p\le z\}\ \ge\ c_A\frac{Y_AV_0}{B^2}.
+\]
+\end{proposition}
+\begin{proof}
+We run the proof of Theorem~1.2 of \cite{OAI} with $Y_1$ replaced by $Y_A$ and record every place where $Y$ enters.
+(i) Section~3 there: the gaps $r_d=\log_w(Y_A/d)-\astar+2$, the admission rule (3.3) and the recursions (3.2), (3.5) refer only to gaps and exponents; Lemma~3.1 needs $r_0-B>2$ at the root, which is $B-\eps_A+o(1)>2$, and then gives the floor $J_d\ge w^{\astar}$ and the uniform bounds (3.4), whose constants depend on $\astar$ alone.
+(ii) Section~4: the delay functions, the extension $\fext$ on $[1.98,2)$ of (4.1), the derivative weights, the chain, $\Mg$, and the renewal limit (4.23) are defined without reference to $Y$; the start window (4.19) is $s_{\mathrm{in}}\in[1.99,2.3]$, which contains $r_0/B$ for large $z$. The sentence after (4.2) giving the root ratio $2-\astar/B$ becomes $2-\eps_A/B$ with the same proof, since $\fext'(2)=e^\gamma$.
+(iii) Section~5: the relations (5.1), $\log w\sim\log B$, $S=(\log B)^2$, $N=O((\log B)^3)$ involve only $w$ and $B$; Lemmas~5.1--5.2 and Propositions~5.3, 5.5 are stated for standard paths from a start ratio in $[1.99,2.3]$, uniformly.
+(iv) Section~6: Lemma~6.1 is uniform in the start ratio; (6.7)--(6.11) use only $r_0\to\infty$ and $r_0/B\to2$. The formula for $r_0$ is used only in the proof of Proposition~6.3, which Proposition~\ref{margin} replaces.
+(v) Section~7: Lemma~7.1 and Proposition~7.2 are in gap coordinates $v_j=r_j+\astar-2$ with thresholds depending on $\astar$; the one use of the root is $v_1\ge\log_wY-B\to\infty$.
+(vi) Section~8: $Z=\exp(L/\log L)$, $M_0=\prod_{t\le w}t$ with $\log M_0=O(w)=o(\log Z)$, and every size relation ((8.6), the determinant bound $2S_qR^2Z^{20}=z^{2+\alpha+o(1)}$, (8.12), the Jarn\'{\i}k and Gallagher exponents, (8.19), (8.22)) uses only $Y=z^{2+o(1)}$ and $w=L/(\log L)^2$; since $L^{2A}=z^{o(1)}$ nothing changes.
+(vii) Sections~9--10: the eligibility bounds (9.24), (10.1), the uniqueness determinant $2Yw^{2C_s+2}=z^{2+o(1)}$, the height bound after (10.12), and the local ratio (10.6) are gap statements or use $Y=z^{2+o(1)}$.
+(viii) Section~11.1: every allocation (11.2)--(11.5) is a fraction of the constant of (11.1), and every later constant is chosen after it; we replace (11.1) by Proposition~\ref{margin}. The comparison identity (3.7) and Lemma~3.1 then give $S_1(B)\ge(1-\tfrac38)c_L(A)Y_AV_0/B^2$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem A]
+Fix $\theta<\theta_0$ and put $A=1+\theta/2<A_0$. By Proposition~\ref{surv} and Lemma~\ref{mertens}, $V_0/B^2\sim e^{-\gamma}\log w/L^2$, so for all large $z$ every assignment of one class at each prime $p\le z$ leaves at least $c_0Y_A\log w/L^2$ integers in $[1,Y_A]$, with $c_0=c_0(A)>0$.
+
+Let $k$ be large, $\ell=\log k$, $M=\log\log k$, and $z=\lambda k\ell/M$ with an absolute $\lambda>1$ fixed below. Then $L\sim\ell$, $\log w\sim M$, and
+\[
+Y_A\sim\lambda^2\frac{k^2\ell^{2-2A}}{M^2},\qquad X:=\frac{Y_A}{z}\sim\lambda\frac{k\ell^{1-2A}}{M},\qquad\log X\sim\ell .
+\]
+Let $\omega(n)\le k$ and let an interval of $Y_A$ consecutive integers begin at $a$. At each prime $p\mid n$ with $p\le z$ forbid the class of $1-a$; at the other primes $p\le z$ forbid any class. The survivors are integers of the interval coprime to every divisor prime of $n$ at most $z$. For a prime divisor $q>z$ of $n$, its multiples in the interval number at most $1+X$ and lie in one class modulo $q$; enclosing them in a progression of coordinate length $\lceil X\rceil+2$ and sieving by the primes up to $X^{\vartheta}$ (a fixed small $\vartheta$; this cutoff is below $z$ and $q$ is invertible modulo each sieve prime), Lemma~\ref{lin} and Lemma~\ref{mertens} bound the survivors divisible by $q$ by $C_1(1+X/\log X)$ with $C_1$ absolute, uniformly in $q$, the classes and $a$. This is (11.9) of \cite{OAI}; its proof uses only $X\to\infty$ and $X^\vartheta<z$. There are at most $k$ such $q$, and
+\[
+\frac{k\,X/\log X}{Y_A\log w/L^2}=\frac{k}{z}\cdot\frac{L}{\log X}\cdot\frac{L}{\log w}\longrightarrow\frac1\lambda,\qquad
+\frac{k}{Y_A\log w/L^2}\ll\frac{\ell^{2A}M}{\lambda^2k}\longrightarrow0,
+\]
+the first ratio being independent of $A$. With $\lambda>2C_1/c_0$ the removed count is less than the survivor count for all large $k$, so some integer of the interval is coprime to $n$, and $h(k)\le Y_A\ll_\theta k^2\ell^{2-2A}/M^2=k^2(\log k)^{-\theta}(\log\log k)^{-2}$. The finitely many remaining $k$ are absorbed into $C$.
+\end{proof}
+
+\section{The balance at the square}\label{sec:budget}
+
+Let $P$ be a set of $k$ primes with classes $(a_p)$ covering $[1,Y]$, let $y=Y^{1/3}$, $\mathcal Q=P\cap[2,y]$, $P_{\mathrm m}=P\cap(y,Y^{1/2+\delta}]$, $P_{\mathrm l}=P\cap(Y^{1/2+\delta},\infty)$, $G=G(\mathcal Q)$, and $S_1=\{n\le Y:n\not\equiv a_q\ (q)\ \forall q\in\mathcal Q\}$.
+
+\begin{lemma}\label{lower}
+$|S_1|\ge(2e^{\gamma}\log2/3-O(\eps)-\eps(Y^{1-\eps}))\,GY-Y^{1-\eps}$ for every small $\eps>0$.
+\end{lemma}
+\begin{proof}
+Lemma~\ref{lin} with $\mathcal A=[1,Y]$, $z=y$, $D=Y^{1-\eps}$, $s=3(1-\eps)$, and $f(3(1-\eps))=2e^\gamma\log(2-3\eps)/(3(1-\eps))$.
+\end{proof}
+
+\begin{lemma}\label{upper}
+For $p\in(y,Y^{1/2+\delta}]$ and any class $a$, $T_p(a):=\#\{n\in S_1:n\equiv a\ (p)\}$ satisfies $T_p(a)\le(1+2\eps)F(s_p)GY/p+2(Y/p)^{1-\eps}$ for large $Y$, with $s_p=3(1-\log p/\log Y)\in[\tfrac32-3\delta,2)$.
+\end{lemma}
+\begin{proof}
+Lemma~\ref{lin} with $\mathcal A=\{n\le Y:n\equiv a\ (p)\}$, $z=y$, $D=(Y/p)^{1-\eps}$, so $s\ge(1-\eps)s_p$, and $F$ decreasing.
+\end{proof}
+
+\begin{lemma}[Budget]\label{budget}
+$\displaystyle\sum_{y<p\le Y^{1/2+\delta}}\frac{F(s_p)}{p}=\frac{2e^{\gamma}}{3}\Bigl(\log2+\log\frac{1/2+\delta}{1/2-\delta}\Bigr)+O\Bigl(\frac1{\log Y}\Bigr)$.
+\end{lemma}
+\begin{proof}
+$F(s_p)=2e^\gamma/(3(1-v))$ at $p=Y^{v}$, and by Lemma~\ref{mertens} the sum is $\frac{2e^{\gamma}}{3}\int_{1/3}^{1/2+\delta}\frac{dv}{v(1-v)}$ up to $O(1/\log Y)$; the integral is $[\log(v/(1-v))]_{1/3}^{1/2+\delta}$.
+\end{proof}
+
+At $\delta=0$ the budget of Lemma~\ref{budget} equals $2e^\gamma\log2/3$, the constant of Lemma~\ref{lower}: with the Rosser--Iwaniec bounds alone, the medium primes can cover exactly the guaranteed survivors, and nothing is left for the large primes to fail on. This is the sieve-theoretic face of Jacobsthal's square.
+
+\section{Proof of Theorem B}
+
+Assume $\mathrm H(\eta,\delta)$ with $\delta<\eta\log2/16$, and keep the notation of Section~\ref{sec:budget}. For $p\in P_{\mathrm m}\setminus\mathcal E$, $\mathrm H$ gives $T_p(a_p)\le(1-\eta)F(s_p)GY/p$; for $p\in\mathcal E$ we use Lemma~\ref{upper} with $F(s_p)\le2e^\gamma$ (as $s_p\ge1$), so the exceptional primes contribute at most $(1+2\eps)2e^{\gamma}GY\sum_{\mathcal E}1/p\le(1+2\eps)\frac{2e^{\gamma}}{3}\cdot\frac{3\eta\log2}{20}GY$. Summing over all primes of $(y,Y^{1/2+\delta}]$, a superset of $P_{\mathrm m}$, Lemma~\ref{budget} with $\log\frac{1/2+\delta}{1/2-\delta}\le5\delta$ gives
+\[
+\sum_{p\in P_{\mathrm m}}T_p(a_p)\ \le\ \frac{2e^{\gamma}}{3}\Bigl[(1-\eta)(\log2+5\delta)+\frac{3\eta\log2}{20}\Bigr]GY+O(\eps GY)+O(Y^{1-\eps/2}).
+\]
+Each $p\in P_{\mathrm l}$ covers at most $Y^{1/2-\delta}+1$ integers and $|P_{\mathrm l}|\le k$. Covering means $|S_1|\le\sum_{P_{\mathrm m}}T_p(a_p)+k(Y^{1/2-\delta}+1)$, and Lemma~\ref{lower} gives
+\[
+\frac{2e^{\gamma}}{3}\Bigl[\log2-(1-\eta)(\log2+5\delta)-\frac{3\eta\log2}{20}\Bigr]GY\ \le\ kY^{1/2-\delta}+O(\eps GY)+O(Y^{1-\eps/2}).
+\]
+The bracket is $\frac{17}{20}\eta\log2-5\delta(1-\eta)>\frac12\eta\log2$ for $\delta<\eta\log2/16$. Taking $\eps$ small in terms of $\eta$ and $G\gg1/\log Y$ (Lemma~\ref{mertens}, since $\mathcal Q\subset[2,y]$), we get $Y/\log Y\ll_\eta kY^{1/2-\delta}$, hence $Y^{1/2+\delta}\ll_\eta k\log Y$ and $Y\ll_\eta(k\log k)^{2/(1+2\delta)}$. As $Y$ was any length covered by $k$ primes, Theorem~B follows. \qed
+
+\begin{remark}
+The small-prime classes enter only through $G$ and the translate $b$; nothing about them is used beyond the sieve dimension bound. A proof of $\mathrm H$ must use that the sifted set is a translate of an interval, because for general sets with the same local densities the Selberg--Iwaniec parity examples make $\mathrm H$ false. By the Chinese remainder theorem the translate $b$ may be of size $e^{Y^{1/3}}$, so $Y\asymp(\log b)^3$: $\mathrm H$ lives in the regime of Maier's matrices, where irregularities of rough numbers in short intervals by constant factors are known to occur but, so far as is known, never reach the sieve extremes $f$ and $F$ in the absence of Siegel zeros.
+\end{remark}
+
+\section{Remarks}
+
+\begin{proposition}[Reach of the reference calculation]\label{nopower}
+With the admission rule and base $w$ of \cite{OAI}, Proposition~\ref{margin} holds exactly for $2A-2+\astar<2I/\Mg$, so the largest exponent obtainable in Theorem~A by that calculation is $\theta_{\max}=2I/\Mg-\astar$. A cutoff $Y=z^{2-4\delta}$ moves the root ratio to $2-4\delta+O(1/B)$, where the benchmark is $\fext(2-4\delta)/B\approx-4e^{\gamma}\delta/B$, a deficit of first order in $1/B$ that no boundary term at scale $B^{-2}$ offsets; and the base $w$ cannot be enlarged, since Section~8 of \cite{OAI} fixes residues modulo $M_0=\prod_{t\le w}t$ and needs $\log M_0=O(w)=o(\log Z)$ with $Z=\exp(L/\log L)$.
+\end{proposition}
+
+\begin{remark}[The constants]
+The rigorous inputs are $I>I_0=0.3326$ and $\Mg\le4e^\gamma=7.124\ldots$; the latter is crude, discarding the factor $1-s^{-2}$ in the odd density $\pi_o$ and using $\log(1+1/s)\le1/s$. A numerical evaluation of $\Mg$ from (4.13) and (4.20) of \cite{OAI}, with the delay equations for $f,F$ solved on $[0,40]$, gives $\Mg=4.565$, and a Monte Carlo evaluation of the first-omission series (6.15) through $m=13$, reproducing the exact $L_2=0.6268$ and $L_3=0.5048$ of (6.16)--(6.17), gives $I=0.359$, consistent with the certified $I\in(0.3326,0.3988)$. These values are not certified and are not used. If $\Mg\le4.57$ were certified, $\theta$ could be taken up to $2I_0/4.57-\astar>0.135$, and with $I>0.35$ as well up to $0.14$. Certifying $\Mg$ is a finite computation with explicit integrands and a tail controlled by (4.6) and (4.12). Decreasing $\astar$ gains at most $0.01$ and requires rechecking (7.16), (8.19), the condition after (8.22), and (9.7).
+\end{remark}
+
+\begin{remark}[Numerics]
+A local search over class vectors for intervals of length $Y\le16000$ sifted by all primes up to $z\approx\sqrt Y$ finds adversarial minima between $0.89$ and $0.94$ of $G(z)Y$, against $0.91$ to $0.96$ for the best of $2000$ random translates, where the Rosser--Iwaniec extremes are $0$ and $1.78\,G(z)Y$. At these sizes the adversary gains about ten percent over random classes and shows no approach to the parity extremes.
+\end{remark}
+
+\section{Formal verification}\label{sec:formal}
+
+This paper and a Lean~4 development over Mathlib (Lean v4.34.1, Mathlib at the commit pinned by \cite{OAI}) are in the repository
+\begin{center}\url{\repourl}\end{center}
+Its root module \texttt{lean/JacobsthalLogSaving.lean} proves
+\begin{lstlisting}
+theorem jacobsthal_log_saving :
+    ∃ C : ℝ, 0 < C ∧ ∀ k : ℕ, 0 < k → ∃ m : ℕ,
+      (∀ n : ℕ, 0 < n → n.primeFactors.card ≤ k →
+        ∀ a : ℤ, ∃ i : ℕ, i < m ∧ (a + i).natAbs.Coprime n) ∧
+      (m : ℝ) ≤ C * (k : ℝ) ^ 2 /
+        ((Real.log (3 * (k : ℝ))) ^ ((2:ℝ)/25) * (Real.log (Real.log (3 * (k : ℝ)))) ^ 2)
+\end{lstlisting}
+which is Theorem~A with $\theta=2/25$: the first conjunct is the statement that $m$ is a Jacobsthal bound for $k$, exactly as in the challenge file of \cite{OAI}, and the second is $m\le Ck^2(\log3k)^{-2/25}(\log\log3k)^{-2}$. The harness \texttt{AxiomCheck.lean} verifies that the theorem depends only on the axioms \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+The development runs the sieve of \cite{OAI} on an interval of length $Y_A=\lfloor z^2/(\log z)^{2A}\rfloor$ with $A=1+1/25$. The formalization of \cite{OAI} is vendored under \texttt{lean/OAI/} and imported unchanged for everything that does not mention the interval length. The 183 modules that do mention it (the import closure of its definition) are copied under \texttt{lean/JacobsthalLogSaving/} and modified exactly where this paper modifies the argument: the definition of $Y$; Lemma~\ref{root}, as the identity between the root node on $Y_A$ and the start node of \cite{OAI} with parameter $\astar+2A-2$ and a remainder tending to zero; the limits of Proposition~\ref{margin}, with $-\astar$ replaced by $-\astar-(2A-2)$; the positivity margin; and the final comparison of Section~\ref{sec:thmA}, with the deletion budget bounded in proportion to $Y_A$ instead of $z^2$. The file \texttt{lean/PROVENANCE.md} lists the copied modules and the modified ones.
+
+The constants. The formalization of \cite{OAI} certifies only $I>11/75$ and $\Mg<8$, which would cap $\theta$ below $0.0267$. The modules under \texttt{lean/JacobsthalLogSaving/Numerics/} certify $I>0.3326$ and $\Mg<7.1804$: the second from $\Mg\le4e^\gamma$ (in \cite{OAI} as an intermediate bound) and $\gamma<0.58501$, obtained from Mathlib's bracketing of $\gamma$ by $H_n-\log n$ at $n=64$ with $\log64=6\log2$ and a nine-digit bound on $\log2$; the first from the identity $8/3-I=\sum_{n\ge1}L_n$ of \cite{OAI} with $L_1=1$, the exact $L_2$, $L_3$ of (6.16)--(6.17) there, the exact value
+\[
+L_4=-\frac{323}{288}-\frac{\ell^4}{12}+\frac{5\ell^3}{18}+\frac{71\ell^2}{72}+\frac{443\ell}{432}=0.1363\ldots\qquad(\ell=\log2),
+\]
+obtained by iterating the primitives of the fourth omission kernel, and the majorant of \cite{OAI} for the tail $\sum_{n\ge5}L_n<0.066$. With these the margin of Proposition~\ref{margin} is positive for $\eps_A<0.0926$, and the development fixes $\theta=2/25$ with margin $2I/\Mg-\eps_A>1/1000$. Nothing in the development is specific to that value: $\theta$ enters only through the definition of $A$ and the margin lemma.
+
+\begin{thebibliography}{99}
+\bibitem{Erd} P. Erd\H{o}s, On the integers relatively prime to $n$ and on a number-theoretic function considered by Jacobsthal, \emph{Math. Scand.} 10 (1962), 163--170. \doi{10.7146/math.scand.a-10523}
+\bibitem{FGKMT} K. Ford, B. Green, S. Konyagin, J. Maynard, T. Tao, Long gaps between primes, \emph{J. Amer. Math. Soc.} 31 (2018), 65--105. \doi{10.1090/jams/876}
+\bibitem{FI} J. Friedlander, H. Iwaniec, \emph{Opera de Cribro}, Amer. Math. Soc. Colloq. Publ. 57, 2010. \doi{10.1090/coll/057}
+\bibitem{Gra} A. Granville, Sieving intervals and Siegel zeros, 2020. \url{https://arxiv.org/abs/2010.01211}
+\bibitem{Iw} H. Iwaniec, On the problem of Jacobsthal, \emph{Demonstratio Math.} 11 (1978), 225--231. \doi{10.1515/dema-1978-0121}
+\bibitem{Jac} E. Jacobsthal, \"Uber Sequenzen ganzer Zahlen, von denen keine zu $n$ teilerfremd ist, I--III, \emph{Norske Vid. Selsk. Forh.} 33 (1960), 117--139. \href{https://zbmath.org/0096.26002}{Zbl 0096.26002}.
+\bibitem{Mot} Y. Motohashi, A note on Siegel's zeros, \emph{Proc. Japan Acad. Ser. A} 55 (1979), 190--192. \doi{10.3792/pjaa.55.190}
+\bibitem{OAI} OpenAI, \emph{A quadratic bound for Jacobsthal's function}, September 25, 2026. \url{https://github.com/openai/math/tree/main/preprints/A-quadratic-bound-for-Jacobsthals-function-September-25-2026}. Lean formalization: \url{https://github.com/openai/math/blob/main/lean/ComparatorChallenges/JacobsthalImproved.lean}.
+\bibitem{OAISiegel} OpenAI, \emph{Uniform exclusion of Landau--Siegel zeros}, October 1, 2026. \url{https://github.com/openai/math/tree/main/preprints/Uniform-exclusion-of-Landau-Siegel-zeros-October-1-2026}. Lean formalization: \url{https://github.com/openai/math/blob/main/lean/ComparatorChallenges/SiegelZeros.lean}.
+\bibitem{Vau} R. C. Vaughan, On the order of magnitude of Jacobsthal's function, \emph{Proc. Edinburgh Math. Soc.} 20 (1977), 329--331. \doi{10.1017/S0013091500026560}
+\end{thebibliography}
+
+\end{document}

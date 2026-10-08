@@ -1,0 +1,63 @@
+name = "jacobsthal"
+version = "0.1.0"
+defaultTargets = ["JacobsthalLogSaving", "OAI"]
+
+[leanOptions]
+autoImplicit = false
+
+[[require]]
+name = "StrongPNT"
+git = "https://github.com/math-inc/strongpnt.git"
+rev = "2f5835c322314f55f1026ec2f139d704b7c45c69"
+
+[[require]]
+name = "AbsorptionCutoff"
+git = "https://github.com/BennyAvelin/AbsorptionCutoff.git"
+rev = "41c45c6d72e979419e46224bb7b4be5cee31f2b5"
+
+[[require]]
+name = "PrimeNumberTheoremAnd"
+git = "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd.git"
+rev = "c39a751132c88b6e8080b74c74023fd95b3d8be0"
+
+[[require]]
+name = "leancert"
+git = "https://github.com/alerad/leancert.git"
+rev = "7f91b6eb3567437f6cfac03ed279706603ee22f4"
+
+[[require]]
+name = "LeanArchitect"
+git = "https://github.com/hanwenzhu/LeanArchitect.git"
+rev = "468e8f58fb4ad6e6ad672a08da6d0d0531e95a97"
+
+[[require]]
+name = "PrimeCert"
+git = "https://github.com/b-mehta/PrimeCert.git"
+rev = "0803c2f6bd289c09704c7d352bb8fcf770cbb9b2"
+
+[[require]]
+name = "doc-gen4"
+git = "https://github.com/leanprover/doc-gen4.git"
+rev = "953c8992d174b4e56955e01e101d46668c68f2bb"
+
+[[require]]
+name = "checkdecls"
+git = "https://github.com/PatrickMassot/checkdecls.git"
+rev = "3d425859e73fcfbef85b9638c2a91708ef4a22d4"
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "d13f23b723b8a846827a245b89c10fc7d3f11612"
+
+[[lean_lib]]
+name = "OAI"
+roots = ["OAI"]
+globs = ["OAI.NumberTheory.Jacobsthal.+"]
+
+# Our development: Theorem A, h(k) ≪ k²/((log 3k)^θ (log log 3k)²), with the sieve cutoff
+# raised to z²/(log z)^(2A).  Root module JacobsthalLogSaving.lean; proof under JacobsthalLogSaving/.
+[[lean_lib]]
+name = "JacobsthalLogSaving"
+roots = ["JacobsthalLogSaving"]
+globs = ["JacobsthalLogSaving", "JacobsthalLogSaving.+"]
