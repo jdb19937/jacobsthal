@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-all: paper.pdf
+all: jacobsthal.pdf
 
 # two passes so cross-references and hyperlinks resolve
 %.pdf: %.tex
